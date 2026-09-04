@@ -7,6 +7,7 @@ import { BlurIn, WordReveal, EASE } from "@/components/animations";
 import { Navbar } from "@/screens/landing/sections/Navbar";
 import { FinalCta } from "@/screens/landing/sections/FinalCta";
 import { useEndpointForm } from "@/lib/useEndpointForm";
+import { LocationSelect } from "@/components/LocationSelect";
 import imgWaitlistBg from "@/assets/waitlist/waitlist.webp";
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -33,26 +34,6 @@ import imgWaitlistBg from "@/assets/waitlist/waitlist.webp";
    ════════════════════════════════════════════════════════════════════════ */
 
 const ENDPOINT = process.env.NEXT_PUBLIC_WAITLIST_ENDPOINT;
-
-/**
- * Options for "Where are you based?".
- *
- * London is the pilot, so the London options are split finely enough to
- * sequence launches within the city, and everywhere else is deliberately
- * coarse — for now we only need to know that demand exists there, not exactly
- * where. Add cities here as they open; the values are stored verbatim on the
- * Kit subscriber record, so keep them stable or old signups stop matching new
- * ones.
- */
-const LOCATIONS = [
-  "Central London",
-  "North London",
-  "East London",
-  "South London",
-  "West London",
-  "Elsewhere in the UK",
-  "Outside the UK",
-] as const;
 
 const FIELD_LABEL = "font-['Poppins:Medium',sans-serif] text-sm text-[#1a1a1a]";
 const FIELD =
@@ -84,6 +65,20 @@ function useSignupSource() {
 function WaitlistForm() {
   const { status, error, handleSubmit } = useEndpointForm(ENDPOINT);
   const source = useSignupSource();
+  const [location, setLocation] = useState("");
+  const [locationInvalid, setLocationInvalid] = useState(false);
+
+  /* The area picker posts through a hidden input, and browsers ignore
+     `required` there, so it can't join the native validation pass with the
+     other fields — it has to be checked here before the submit goes out. */
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (!location) {
+      e.preventDefault();
+      setLocationInvalid(true);
+      return;
+    }
+    handleSubmit(e);
+  }
 
   if (status === "success") {
     return (
@@ -114,7 +109,7 @@ function WaitlistForm() {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       className="bg-white rounded-[20px] shadow-[0_24px_60px_rgba(0,0,0,0.10)] p-[max(24px,calc(40*var(--u)))] flex flex-col gap-[18px] w-full"
     >
       <label className="flex flex-col gap-[8px]">
@@ -122,24 +117,27 @@ function WaitlistForm() {
         <input type="email" name="email_address" required placeholder="you@example.com" className={FIELD} />
       </label>
 
-      {/* A picker rather than free text. We only need to know whether someone
-          is inside the London pilot area, and a fixed list answers that in one
-          tap — no typing, and no "Sarf London" vs "South London" to reconcile
-          later. The last two options matter as much as the London ones: they
-          tell us where demand is building for the city after this one. */}
-      <label className="flex flex-col gap-[8px]">
+      {/* Borough-level, so we know where *in* London someone is rather than
+          just "central". See LocationSelect for why boroughs beat neighbourhood
+          names. The two non-London options matter too: they show where demand
+          is building for the city after this one. */}
+      <div className="flex flex-col gap-[8px]">
         <span className={FIELD_LABEL}>Where are you based?</span>
-        <select name="fields[location]" required defaultValue="" className={`${FIELD} cursor-pointer`}>
-          <option value="" disabled>
-            Select your area
-          </option>
-          {LOCATIONS.map((l) => (
-            <option key={l} value={l}>
-              {l}
-            </option>
-          ))}
-        </select>
-      </label>
+        <LocationSelect
+          name="fields[location]"
+          value={location}
+          invalid={locationInvalid}
+          onChange={(v) => {
+            setLocation(v);
+            setLocationInvalid(false);
+          }}
+        />
+        {locationInvalid && (
+          <p className="font-['Poppins:Regular',sans-serif] text-sm text-[#d23a00]">
+            Please choose your area.
+          </p>
+        )}
+      </div>
 
       {/* Explicit opt-in. Deliberately unticked by default and its own control
           rather than implied by pressing the button — under UK GDPR consent has
