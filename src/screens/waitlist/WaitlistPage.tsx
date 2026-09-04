@@ -112,6 +112,25 @@ function WaitlistForm() {
       onSubmit={onSubmit}
       className="bg-white rounded-[20px] shadow-[0_24px_60px_rgba(0,0,0,0.10)] p-[max(24px,calc(40*var(--u)))] flex flex-col gap-[18px] w-full"
     >
+      {/* Optional on purpose. It only exists so launch emails can open with a
+          name instead of "Hi there", which is worth a few points of open rate —
+          not worth losing a signup over, so it never blocks submission. */}
+      <label className="flex flex-col gap-[8px]">
+        <span className={FIELD_LABEL}>
+          First name{" "}
+          <span className="font-['Poppins:Regular',sans-serif] text-[rgba(26,26,26,0.4)]">
+            (optional)
+          </span>
+        </span>
+        <input
+          type="text"
+          name="fields[first_name]"
+          autoComplete="given-name"
+          placeholder="What should we call you?"
+          className={FIELD}
+        />
+      </label>
+
       <label className="flex flex-col gap-[8px]">
         <span className={FIELD_LABEL}>Email</span>
         <input type="email" name="email_address" required placeholder="you@example.com" className={FIELD} />

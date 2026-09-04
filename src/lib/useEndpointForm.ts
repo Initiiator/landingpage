@@ -4,12 +4,17 @@ import { useState } from "react";
 
 /**
  * Shared submit handling for the site's form-service-backed forms (waitlist,
- * newsletter). Every one of them POSTs a FormData body to an endpoint supplied
- * by env (Formspree, Tally, etc.) — there is no backend code here.
+ * newsletter). Each POSTs a FormData body to an endpoint supplied by env — the
+ * waitlist goes to Kit — so there is no backend code here.
  *
  * The endpoint is deliberately allowed to be undefined: an unset env var means
  * that form isn't open yet, and we say so plainly rather than firing a request
  * at `undefined` and showing a generic failure.
+ *
+ * Note this only checks `res.ok`. Providers answer 200 for things that are not
+ * a successful signup, so "the POST succeeded" is not the same as "the record
+ * is stored with every field" — verify against the provider when changing
+ * endpoints or field names.
  */
 
 export type FormStatus = "idle" | "loading" | "success" | "error";

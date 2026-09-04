@@ -59,7 +59,7 @@ a redeploy to take effect.
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Canonical production URL. Drives canonical tags, sitemap, robots and OG image URLs. No trailing slash. **If unset it falls back to the Vercel deployment hostname**, which silently breaks canonicals on a custom domain. |
 | `NEXT_PUBLIC_LAUNCHED` | `"true"` puts the site in live mode (store buttons, full nav, Blog in footer). Anything else = pre-launch mode (waitlist CTAs, trimmed nav). |
-| `NEXT_PUBLIC_WAITLIST_ENDPOINT` | Form-service endpoint the waitlist POSTs to (e.g. Formspree). Unset → the form says signups aren't open rather than failing. |
+| `NEXT_PUBLIC_WAITLIST_ENDPOINT` | Kit form endpoint the waitlist POSTs to: `https://app.kit.com/forms/<FORM_ID>/subscriptions`. Needs no API key — and a Kit API **secret** must never go in a `NEXT_PUBLIC_` var, since those are readable in the browser bundle. Unset → the form says signups aren't open rather than failing. |
 | `NEXT_PUBLIC_NEWSLETTER_ENDPOINT` | Same, for the blog newsletter. Deliberately a separate list from the waitlist — different consents. |
 | `NEXT_PUBLIC_IOS_URL` / `NEXT_PUBLIC_ANDROID_URL` | Store listings. Used only when launched; **fall back to `"#"` if empty**, so set them in the same deploy that flips `NEXT_PUBLIC_LAUNCHED`. |
 
