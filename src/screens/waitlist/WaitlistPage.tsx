@@ -34,6 +34,26 @@ import imgWaitlistBg from "@/assets/waitlist/waitlist.webp";
 
 const ENDPOINT = process.env.NEXT_PUBLIC_WAITLIST_ENDPOINT;
 
+/**
+ * Options for "Where are you based?".
+ *
+ * London is the pilot, so the London options are split finely enough to
+ * sequence launches within the city, and everywhere else is deliberately
+ * coarse — for now we only need to know that demand exists there, not exactly
+ * where. Add cities here as they open; the values are stored verbatim on the
+ * Kit subscriber record, so keep them stable or old signups stop matching new
+ * ones.
+ */
+const LOCATIONS = [
+  "Central London",
+  "North London",
+  "East London",
+  "South London",
+  "West London",
+  "Elsewhere in the UK",
+  "Outside the UK",
+] as const;
+
 const FIELD_LABEL = "font-['Poppins:Medium',sans-serif] text-sm text-[#1a1a1a]";
 const FIELD =
   "w-full rounded-[12px] bg-[#f9f6f2] border border-[rgba(0,0,0,0.06)] font-['Poppins:Regular',sans-serif] text-body text-[#1a1a1a] placeholder:text-[rgba(26,26,26,0.4)] px-[18px] h-[clamp(46px,5vw,52px)] outline-none focus:border-[rgba(255,90,0,0.4)] transition-colors";
@@ -102,19 +122,23 @@ function WaitlistForm() {
         <input type="email" name="email_address" required placeholder="you@example.com" className={FIELD} />
       </label>
 
-      {/* Replaces the old free-text "City" field. A city is too coarse to tell
-          whether someone is actually inside a launch area — a postcode or campus
-          is, and launch sequencing depends on knowing that. */}
+      {/* A picker rather than free text. We only need to know whether someone
+          is inside the London pilot area, and a fixed list answers that in one
+          tap — no typing, and no "Sarf London" vs "South London" to reconcile
+          later. The last two options matter as much as the London ones: they
+          tell us where demand is building for the city after this one. */}
       <label className="flex flex-col gap-[8px]">
-        <span className={FIELD_LABEL}>Postcode or campus</span>
-        <input
-          type="text"
-          name="fields[location]"
-          required
-          autoComplete="postal-code"
-          placeholder="e.g. SE1 7PB, or King's College London"
-          className={FIELD}
-        />
+        <span className={FIELD_LABEL}>Where are you based?</span>
+        <select name="fields[location]" required defaultValue="" className={`${FIELD} cursor-pointer`}>
+          <option value="" disabled>
+            Select your area
+          </option>
+          {LOCATIONS.map((l) => (
+            <option key={l} value={l}>
+              {l}
+            </option>
+          ))}
+        </select>
       </label>
 
       {/* Explicit opt-in. Deliberately unticked by default and its own control
