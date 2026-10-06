@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "motion/react";
 
 export const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -144,16 +144,20 @@ export function WordReveal({
       }}
     >
       {words.map((word, i) => (
-        <motion.span
-          key={i}
-          className="inline-block mr-[0.25em]"
-          variants={{
-            hidden: { opacity: 0, y: 10 },
-            visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
-          }}
-        >
-          {word}
-        </motion.span>
+        // A real space between words (not margin) keeps the DOM text readable
+        // to screen readers, crawlers and copy/paste.
+        <Fragment key={i}>
+          <motion.span
+            className="inline-block"
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
+            }}
+          >
+            {word}
+          </motion.span>
+          {i < words.length - 1 ? " " : null}
+        </Fragment>
       ))}
     </motion.span>
   );
@@ -220,16 +224,20 @@ export function ScrollWordReveal({
       }}
     >
       {words.map((word, i) => (
-        <motion.span
-          key={i}
-          className="inline-block mr-[0.25em]"
-          variants={{
-            hidden: { opacity: 0, y: 10 },
-            visible: { opacity: 1, y: 0, transition: { duration: 0.38, ease: EASE } },
-          }}
-        >
-          {word}
-        </motion.span>
+        // A real space between words (not margin) keeps the DOM text readable
+        // to screen readers, crawlers and copy/paste.
+        <Fragment key={i}>
+          <motion.span
+            className="inline-block"
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.38, ease: EASE } },
+            }}
+          >
+            {word}
+          </motion.span>
+          {i < words.length - 1 ? " " : null}
+        </Fragment>
       ))}
     </motion.span>
   );
